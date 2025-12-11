@@ -1,0 +1,27 @@
+
+/**
+ * Google Apps Script to accept JSON POST and append to a Google Sheet.
+ * Steps:
+ * - Create a Google Sheet and add header row: Customer,ServiceDate,ServiceType,Frequency,Status,Notes,CreatedAt
+ * - Extensions -> Apps Script -> Replace code with this -> Deploy as Web App (Execute as Me, Who has access: Anyone)
+ */
+
+function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = JSON.parse(e.postData.contents);
+    // expected fields: customer, date, type, frequency, status, notes, createdAt
+    sheet.appendRow([
+      data.customer || '',
+      data.date || '',
+      data.type || '',
+      data.frequency || '',
+      data.status || '',
+      data.notes || '',
+      data.createdAt || new Date().toISOString()
+    ]);
+    return ContentService.createTextOutput(JSON.stringify({status:'ok'})).setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({status:'error',message:err.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
